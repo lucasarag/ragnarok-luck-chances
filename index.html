@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Central de Simuladores - Ragnarok</title>
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+    body { background-color: #1e1e24; color: #f4f4f9; padding: 20px; }
+    .container { max-width: 950px; margin: 0 auto; text-align: center; }
+    h1 { margin-bottom: 15px; color: #e2b041; }
+    .tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; }
+    .tab-btn { background-color: #27272a; color: #a1a1aa; border: 1px solid #3f3f46; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+    .tab-btn.active { background-color: #3b82f6; color: white; border-color: #3b82f6; }
+    .simulator-section { display: none; }
+    .simulator-section.active { display: block; }
+    .config-panel { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; background-color: #27272a; padding: 15px; border-radius: 8px; border: 1px solid #3f3f46; flex-wrap: wrap; }
+    .config-item { display: flex; flex-direction: column; align-items: flex-start; font-size: 0.9rem; color: #a1a1aa; }
+    .config-item input { margin-top: 5px; padding: 8px; border-radius: 4px; border: 1px solid #3f3f46; background-color: #18181b; color: white; width: 180px; }
+    .controls { margin-bottom: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    button { background-color: #3b82f6; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+    button:hover { background-color: #2563eb; }
+    button.btn-reset { background-color: #ef4444; }
+    button.btn-reset:hover { background-color: #dc2626; }
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
+    @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr; } }
+    .stat-card { background-color: #27272a; border: 1px solid #3f3f46; padding: 15px; border-radius: 8px; }
+    .stat-card p { font-size: 0.9rem; color: #a1a1aa; margin-bottom: 5px; }
+    .stat-card span { font-size: 1.2rem; font-weight: bold; color: #e2b041; }
+    .main-content { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 600px) { .main-content { grid-template-columns: 1fr; } }
+    .panel { background-color: #27272a; border-radius: 8px; padding: 15px; border: 1px solid #3f3f46; text-align: left; }
+    .panel h2 { font-size: 1.1rem; margin-bottom: 10px; color: #e2b041; border-bottom: 1px solid #3f3f46; padding-bottom: 5px; }
+    .log-box, .inventory-box { max-height: 350px; overflow-y: auto; }
+    .item-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #333338; font-size: 0.95rem; }
+    .rare { color: #facc15; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Central de Simuladores - Ragnarok</h1>
+    
+    <div class="tabs">
+      <button class="tab-btn active" onclick="mudarAba('ovos')">Abertura de Ovos</button>
+      <button class="tab-btn" onclick="mudarAba('festival')">Festival Gastronômico</button>
+    </div>
+
+    <!-- SEÇÃO 1: OVOS -->
+    <div id="secao-ovos" class="simulator-section active">
+      <h2>Artefato Oval Gourmet</h2>
+      <div class="config-panel">
+        <div class="config-item">
+          <label for="custo-zeny">Custo por Ovo (Zeny):</label>
+          <input type="number" id="custo-zeny" value="1600000" min="0" step="100000" onchange="atualizarCustosOvos()">
+        </div>
+        <div class="config-item">
+          <label for="custo-rops">Custo por Ovo (ROPs):</label>
+          <input type="number" id="custo-rops" value="1000" min="0" step="10" onchange="atualizarCustosOvos()">
+        </div>
+      </div>
+
+      <div class="controls">
+        <button onclick="abrirOvo(1)">Abrir 1 Ovo</button>
+        <button onclick="abrirOvo(10)">Abrir 10 Ovos</button>
+        <button onclick="abrirOvo(100)">Abrir 100 Ovos</button>
+        <button onclick="resetarOvos()" class="btn-reset">Resetar Ovos</button>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card"><p>Ovos Abertos</p><span id="total-abertos">0</span></div>
+        <div class="stat-card"><p>Gasto Total (Zeny)</p><span id="gasto-zeny">0 Zeny</span></div>
+        <div class="stat-card"><p>Gasto Total (ROPs)</p><span id="gasto-rops">0 ROPs</span></div>
+      </div>
+
+      <div class="main-content">
+        <div class="panel"><h2>Último Saque</h2><div id="ultimo-saque" class="log-box">Nenhum ovo aberto ainda.</div></div>
+        <div class="panel"><h2>Inventário Acumulado</h2><div id="inventario" class="inventory-box"></div></div>
+      </div>
+    </div>
+
+    <!-- SEÇÃO 2: FESTIVAL -->
+    <div id="secao-festival" class="simulator-section">
+      <h2>Festival Gastronomico</h2>
+      <div class="config-panel">
+        <div class="config-item">
+          <label for="custo-prata">Custo da Moeda de Prata (Zeny):</label>
+          <input type="number" id="custo-prata" value="1000000" min="0" step="100000" onchange="atualizarCustosFestival()">
+        </div>
+      </div>
+
+      <div class="controls">
+        <button onclick="degustar(1)">1 Degustação</button>
+        <button onclick="degustar(10)">10 Degustações</button>
+        <button onclick="degustar(100)">100 Degustações</button>
+        <button onclick="degustar(1000)">1.000 Degustações</button>
+        <button onclick="resetarFestival()" class="btn-reset">Resetar Festival</button>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card"><p>Degustações Realizadas</p><span id="total-degustacoes">0</span></div>
+        <div class="stat-card"><p>Gasto Total (Zeny)</p><span id="gasto-festival-zeny">0 Zeny</span></div>
+        <div class="stat-card"><p>Moedas de Ouro Acumuladas</p><span id="moedas-ouro">0</span></div>
+      </div>
+
+      <div class="main-content">
+        <div class="panel"><h2>Histórico da Última Jogada</h2><div id="historico-festival" class="log-box">Nenhuma degustação realizada ainda.</div></div>
+        <div class="panel"><h2>Estatísticas de Pratos</h2><div id="estatisticas-festival" class="inventory-box"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function mudarAba(aba) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.simulator-section').forEach(sec => sec.classList.remove('active'));
+      if (aba === 'ovos') {
+        document.querySelector('button[onclick="mudarAba(\'ovos\')"]').classList.add('active');
+        document.getElementById('secao-ovos').classList.add('active');
+      } else {
+        document.querySelector('button[onclick="mudarAba(\'festival\')"]').classList.add('active');
+        document.getElementById('secao-festival').classList.add('active');
+      }
+    }
+
+    const ITENS_OVO = [
+      { nome: "Tempestivo Selecionável", qtd: 1, chance: 0.0250 },
+      { nome: "Penetrante Selecionável", qtd: 1, chance: 0.0250 },
+      { nome: "Envelope de Alto Refino", qtd: 1, chance: 0.0500 },
+      { nome: "Âmago Dimensional", qtd: 1, chance: 0.2250 },
+      { nome: "Âmago", qtd: 1, chance: 0.2250 },
+      { nome: "Katar Celestial [2]", qtd: 1, chance: 0.3500 },
+      { nome: "Manopla Infernal [2]", qtd: 1, chance: 0.3500 },
+      { nome: "Foice Infernal [2]", qtd: 1, chance: 0.3500 },
+      { nome: "Shuriken Celestial [2]", qtd: 1, chance: 0.3500 },
+      { nome: "Fugaz Selecionável", qtd: 1, chance: 0.4000 },
+      { nome: "Infinito Selecionável", qtd: 1, chance: 0.4000 },
+      { nome: "Martelo de Refino Celestial", qtd: 1, chance: 1.0000 },
+      { nome: "Martelo de Refino Infernal", qtd: 1, chance: 1.0000 },
+      { nome: "Martelo de Refino dos Elmos", qtd: 1, chance: 1.0000 },
+      { nome: "Martelo de Refino Vivatus", qtd: 1, chance: 1.0000 },
+      { nome: "Caixa de Ás Selecionável", qtd: 1, chance: 1.0000 },
+      { nome: "Caixa da Fé", qtd: 1, chance: 1.0000 },
+      { nome: "Caixa Consagrada", qtd: 1, chance: 1.5000 },
+      { nome: "Caixa de Âmagos Sombrios", qtd: 1, chance: 1.5000 },
+      { nome: "Envelope de Encantos", qtd: 1, chance: 1.5000 },
+      { nome: "Cubo Sombrio Talentoso", qtd: 1, chance: 2.0000 },
+      { nome: "Caixa de Armaduras Desconhecidas", qtd: 1, chance: 2.0000 },
+      { nome: "Caixa de Capas Desconhecidas", qtd: 1, chance: 2.0000 },
+      { nome: "Selo de Loki", qtd: 1, chance: 2.0000 },
+      { nome: "Martelo de Refino da Ecosfera", qtd: 1, chance: 2.5000 },
+      { nome: "Martelo de Refino COR", qtd: 1, chance: 2.5000 },
+      { nome: "Bênção do Ferreiro", qtd: 3, chance: 3.0000 },
+      { nome: "Cx. Asa de Mosca (1 dia)", qtd: 1, chance: 3.0000 },
+      { nome: "Seguro Estendido", qtd: 2, chance: 3.0000 },
+      { nome: "Cx. Cartão Pata de Gato (1 dia)", qtd: 1, chance: 3.0000 },
+      { nome: "Caixa de Martelos Sombrios", qtd: 1, chance: 3.0000 },
+      { nome: "[Evento] Manual & Chiclete", qtd: 1, chance: 4.7500 },
+      { nome: "[Evento] Poção Menor de Mana", qtd: 2, chance: 4.7500 },
+      { nome: "Suco de Gato", qtd: 2, chance: 4.7500 },
+      { nome: "Estimulante", qtd: 2, chance: 4.7500 },
+      { nome: "[Limitado] Amuleto de Siegfried", qtd: 3, chance: 4.7500 },
+      { nome: "Combinador de Pedras Visuais", qtd: 3, chance: 7.0000 },
+      { nome: "Maleta de Produtos Químicos", qtd: 2, chance: 7.0000 },
+      { nome: "Porta Moedas", qtd: 2, chance: 7.0000 },
+      { nome: "Poção Mental", qtd: 2, chance: 7.0000 },
+      { nome: "Elixir Rubro", qtd: 3, chance: 7.0000 },
+      { nome: "Cupom da Kachua", qtd: 1, chance: 100.0000 }
+    ];
+
+    let totalAbertos = 0;
+    const inventarioOvos = {};
+
+    function sortearItemOvo() {
+      const itensSorteio = ITENS_OVO.filter(i => i.nome !== "Cupom da Kachua");
+      const somaTotal = itensSorteio.reduce((acc, curr) => acc + curr.chance, 0);
+      const rand = Math.random() * somaTotal;
+      let soma = 0;
+      for (const item of itensSorteio) {
+        soma += item.chance;
+        if (rand <= soma) return item;
+      }
+      return itensSorteio[0];
+    }
+
+    function abrirOvo(quantidade) {
+      totalAbertos += quantidade;
+      const resultadosRodada = [];
+      for (let i = 0; i < quantidade; i++) {
+        adicionarInventarioOvo("Cupom da Kachua", 1);
+        resultadosRodada.push(ITENS_OVO.find(i => i.nome === "Cupom da Kachua"));
+        const itemSorteado = sortearItemOvo();
+        adicionarInventarioOvo(itemSorteado.nome, itemSorteado.qtd);
+        resultadosRodada.push(itemSorteado);
+      }
+      atualizarInterfaceOvos(resultadosRodada);
+    }
+
+    function adicionarInventarioOvo(nome, qtd) {
+      inventarioOvos[nome] = (inventarioOvos[nome] || 0) + qtd;
+    }
+
+    function atualizarCustosOvos() {
+      atualizarInterfaceOvos([]);
+    }
+
+    function formatarNumero(num) {
+      return num.toLocaleString('pt-BR');
+    }
+
+    function atualizarInterfaceOvos(ultimosSorteados) {
+      document.getElementById("total-abertos").innerText = formatarNumero(totalAbertos);
+      const custoZeny = parseFloat(document.getElementById("custo-zeny").value) || 0;
+      document.getElementById("gasto-zeny").innerText = formatarNumero(totalAbertos * custoZeny) + " Zeny";
+
+      const custoRops = parseFloat(document.getElementById("custo-rops").value) || 0;
+      document.getElementById("gasto-rops").innerText = formatarNumero(totalAbertos * custoRops) + " ROPs";
+
+      if (ultimosSorteados.length > 0) {
+        const logBox = document.getElementById("ultimo-saque");
+        logBox.innerHTML = "";
+        ultimosSorteados.forEach(item => {
+          const div = document.createElement("div");
+          div.className = "item-row" + (item.chance <= 0.5 ? " rare" : "");
+          div.innerHTML = `<span>${item.nome} x${item.qtd}</span><small>(${item.chance}%)</small>`;
+          logBox.appendChild(div);
+        });
+      }
+
+      const invBox = document.getElementById("inventario");
+      invBox.innerHTML = "";
+      Object.keys(inventarioOvos).sort().forEach(nome => {
+        const div = document.createElement("div");
+        div.className = "item-row";
+        div.innerHTML = `<span>${nome}</span> <strong>x${formatarNumero(inventarioOvos[nome])}</strong>`;
+        invBox.appendChild(div);
+      });
+    }
+
+    function resetarOvos() {
+      totalAbertos = 0;
+      for (const key in inventarioOvos) delete inventarioOvos[key];
+      document.getElementById("total-abertos").innerText = "0";
+      document.getElementById("gasto-zeny").innerText = "0 Zeny";
+      document.getElementById("gasto-rops").innerText = "0 ROPs";
+      document.getElementById("ultimo-saque").innerHTML = "Nenhum ovo aberto ainda.";
+      document.getElementById("inventario").innerHTML = "";
+    }
+
+    let totalDegustacoes = 0;
+    let moedasOuroTotal = 0;
+    const estatisticasFestival = {
+      "Banquete Real (3 Dados Iguais)": 0,
+      "Especial do Chefe (Soma >= 12)": 0,
+      "Comida Saborosa (Outros)": 0
+    };
+
+    function rolarDadosFestival() {
+      const d1 = Math.floor(Math.random() * 6) + 1;
+      const d2 = Math.floor(Math.random() * 6) + 1;
+      const d3 = Math.floor(Math.random() * 6) + 1;
+      const soma = d1 + d2 + d3;
+
+      let tipo = "", ouro = 0, classeCss = "";
+      if (d1 === d2 && d2 === d3) {
+        tipo = "Banquete Real"; ouro = 8888; classeCss = "rare";
+        estatisticasFestival["Banquete Real (3 Dados Iguais)"]++;
+      } else if (soma >= 12) {
+        tipo = "Especial do Chefe"; ouro = 44; classeCss = "";
+        estatisticasFestival["Especial do Chefe (Soma >= 12)"]++;
+      } else {
+        tipo = "Comida Saborosa"; ouro = 11; classeCss = "";
+        estatisticasFestival["Comida Saborosa (Outros)"]++;
+      }
+      return { d1, d2, d3, soma, tipo, ouro, classeCss };
+    }
+
+    function degustar(quantidade) {
+      totalDegustacoes += quantidade;
+      const ultimosResultados = [];
+      for (let i = 0; i < quantidade; i++) {
+        const res = rolarDadosFestival();
+        moedasOuroTotal += res.ouro;
+        if (quantidade <= 100) ultimosResultados.push(res);
+      }
+      atualizarInterfaceFestival(ultimosResultados);
+    }
+
+    function atualizarCustosFestival() {
+      atualizarInterfaceFestival([]);
+    }
+
+    function atualizarInterfaceFestival(ultimosResultados) {
+      document.getElementById("total-degustacoes").innerText = formatarNumero(totalDegustacoes);
+      const custoPrata = parseFloat(document.getElementById("custo-prata").value) || 0;
+      document.getElementById("gasto-festival-zeny").innerText = formatarNumero(totalDegustacoes * custoPrata) + " Zeny";
+      document.getElementById("moedas-ouro").innerText = formatarNumero(moedasOuroTotal);
+
+      if (ultimosResultados.length > 0) {
+        const logBox = document.getElementById("historico-festival");
+        logBox.innerHTML = "";
+        ultimosResultados.forEach(res => {
+          const div = document.createElement("div");
+          div.className = `item-row ${res.classeCss}`;
+          div.innerHTML = `<span>[${res.d1}, ${res.d2}, ${res.d3}] ${res.tipo}</span> <strong>+${formatarNumero(res.ouro)} Ouro</strong>`;
+          logBox.appendChild(div);
+        });
+      }
+
+      const invBox = document.getElementById("estatisticas-festival");
+      invBox.innerHTML = "";
+      Object.keys(estatisticasFestival).forEach(nome => {
+        const div = document.createElement("div");
+        div.className = "item-row";
+        const pct = totalDegustacoes > 0 ? ((estatisticasFestival[nome] / totalDegustacoes) * 100).toFixed(2) : "0.00";
+        div.innerHTML = `<span>${nome}</span> <strong>${formatarNumero(estatisticasFestival[nome])} (${pct}%)</strong>`;
+        invBox.appendChild(div);
+      });
+    }
+
+    function resetarFestival() {
+      totalDegustacoes = 0;
+      moedasOuroTotal = 0;
+      Object.keys(estatisticasFestival).forEach(k => estatisticasFestival[k] = 0);
+      document.getElementById("total-degustacoes").innerText = "0";
+      document.getElementById("gasto-festival-zeny").innerText = "0 Zeny";
+      document.getElementById("moedas-ouro").innerText = "0";
+      document.getElementById("historico-festival").innerHTML = "Nenhuma degustação realizada ainda.";
+      document.getElementById("estatisticas-festival").innerHTML = "";
+    }
+  </script>
+</body>
+</html>
