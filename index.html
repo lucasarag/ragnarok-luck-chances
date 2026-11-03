@@ -7,33 +7,35 @@
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
     body { background-color: #1e1e24; color: #f4f4f9; padding: 20px; }
-    .container { max-width: 950px; margin: 0 auto; text-align: center; }
+    .container { max-width: 1050px; margin: 0 auto; text-align: center; }
     h1 { margin-bottom: 15px; color: #e2b041; }
-    .tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; }
+    .tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
     .tab-btn { background-color: #27272a; color: #a1a1aa; border: 1px solid #3f3f46; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
     .tab-btn.active { background-color: #3b82f6; color: white; border-color: #3b82f6; }
     .simulator-section { display: none; }
     .simulator-section.active { display: block; }
     .config-panel { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; background-color: #27272a; padding: 15px; border-radius: 8px; border: 1px solid #3f3f46; flex-wrap: wrap; }
     .config-item { display: flex; flex-direction: column; align-items: flex-start; font-size: 0.9rem; color: #a1a1aa; }
-    .config-item input { margin-top: 5px; padding: 8px; border-radius: 4px; border: 1px solid #3f3f46; background-color: #18181b; color: white; width: 180px; }
+    .config-item input, .config-item select { margin-top: 5px; padding: 8px; border-radius: 4px; border: 1px solid #3f3f46; background-color: #18181b; color: white; width: 250px; }
     .controls { margin-bottom: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
     button { background-color: #3b82f6; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
     button:hover { background-color: #2563eb; }
     button.btn-reset { background-color: #ef4444; }
     button.btn-reset:hover { background-color: #dc2626; }
     .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
-    @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 800px) { .stats-grid { grid-template-columns: 1fr; } }
     .stat-card { background-color: #27272a; border: 1px solid #3f3f46; padding: 15px; border-radius: 8px; }
     .stat-card p { font-size: 0.9rem; color: #a1a1aa; margin-bottom: 5px; }
     .stat-card span { font-size: 1.2rem; font-weight: bold; color: #e2b041; }
     .main-content { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    @media (max-width: 600px) { .main-content { grid-template-columns: 1fr; } }
+    @media (max-width: 768px) { .main-content { grid-template-columns: 1fr; } }
     .panel { background-color: #27272a; border-radius: 8px; padding: 15px; border: 1px solid #3f3f46; text-align: left; }
     .panel h2 { font-size: 1.1rem; margin-bottom: 10px; color: #e2b041; border-bottom: 1px solid #3f3f46; padding-bottom: 5px; }
     .log-box, .inventory-box { max-height: 350px; overflow-y: auto; }
     .item-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #333338; font-size: 0.95rem; }
     .rare { color: #facc15; font-weight: bold; }
+    .fail { color: #ef4444; }
+    .success { color: #22c55e; }
   </style>
 </head>
 <body>
@@ -43,19 +45,27 @@
     <div class="tabs">
       <button class="tab-btn active" onclick="mudarAba('ovos')">Abertura de Ovos</button>
       <button class="tab-btn" onclick="mudarAba('festival')">Festival Gastronômico</button>
+      <button class="tab-btn" onclick="mudarAba('refino')">Simulador de Refino</button>
     </div>
 
     <!-- SEÇÃO 1: OVOS -->
     <div id="secao-ovos" class="simulator-section active">
-      <h2>Artefato Oval Gourmet</h2>
+      <h2>Simulador de Artefatos Ovais</h2>
       <div class="config-panel">
         <div class="config-item">
+          <label for="selecao-ovo">Selecione o Artefato Oval:</label>
+          <select id="selecao-ovo" onchange="trocarOvo()">
+            <option value="diabolico">Artefato Oval Diabólico (Atual)</option>
+            <option value="gourmet">Artefato Oval Gourmet</option>
+          </select>
+        </div>
+        <div class="config-item">
           <label for="custo-zeny">Custo por Ovo (Zeny):</label>
-          <input type="number" id="custo-zeny" value="1600000" min="0" step="100000" onchange="atualizarCustosOvos()">
+          <input type="number" id="custo-zeny" value="1600000" min="0" step="10000" onchange="atualizarCustosOvos()">
         </div>
         <div class="config-item">
           <label for="custo-rops">Custo por Ovo (ROPs):</label>
-          <input type="number" id="custo-rops" value="1000" min="0" step="10" onchange="atualizarCustosOvos()">
+          <input type="number" id="custo-rops" value="300" min="0" step="10" onchange="atualizarCustosOvos()">
         </div>
       </div>
 
@@ -80,7 +90,7 @@
 
     <!-- SEÇÃO 2: FESTIVAL -->
     <div id="secao-festival" class="simulator-section">
-      <h2>Festival Gastronomico</h2>
+      <h2>festival_gastronomico.py</h2>
       <div class="config-panel">
         <div class="config-item">
           <label for="custo-prata">Custo da Moeda de Prata (Zeny):</label>
@@ -107,6 +117,69 @@
         <div class="panel"><h2>Estatísticas de Pratos</h2><div id="estatisticas-festival" class="inventory-box"></div></div>
       </div>
     </div>
+
+    <!-- SEÇÃO 3: REFINO -->
+    <div id="secao-refino" class="simulator-section">
+      <h2>Simulador de Refino Oficial (bOWiki)</h2>
+      <div class="config-panel">
+        <div class="config-item">
+          <label for="tipo-equip">Tipo de Equipamento:</label>
+          <select id="tipo-equip" onchange="atualizarOpcoesMinerio()">
+            <option value="arma1">Arma Nv. 1</option>
+            <option value="arma2">Arma Nv. 2</option>
+            <option value="arma3">Arma Nv. 3</option>
+            <option value="arma4">Arma Nv. 4</option>
+            <option value="arma5">Arma Nv. 5</option>
+            <option value="equip1">Equipamento / Armadura</option>
+            <option value="sombrio">Equipamento Sombrio</option>
+          </select>
+        </div>
+        <div class="config-item">
+          <label for="tipo-minerio">Minério Utilizado:</label>
+          <select id="tipo-minerio"></select>
+        </div>
+        <div class="config-item">
+          <label for="preco-minerio">Valor Unit. do Minério (Zeny):</label>
+          <input type="number" id="preco-minerio" value="50000" min="0" step="1000">
+        </div>
+        <div class="config-item">
+          <label for="preco-bsb">Valor Unit. BSB / Seguro (Zeny):</label>
+          <input type="number" id="preco-bsb" value="15000000" min="0" step="100000">
+        </div>
+        <div class="config-item">
+          <label for="refino-inicial">Refino Inicial Manual:</label>
+          <input type="number" id="refino-inicial" value="0" min="0" max="20" onchange="definirRefinoManual()">
+        </div>
+        <div class="config-item" style="justify-content: center; flex-direction: row; gap: 10px; align-items: center;">
+          <input type="checkbox" id="evento-ativo" style="width: 20px;">
+          <label for="evento-ativo" style="cursor: pointer; color: #f4f4f9;">Evento de Refino Ativo (+10% Chance)</label>
+        </div>
+        <div class="config-item" style="justify-content: center; flex-direction: row; gap: 10px; align-items: center;">
+          <input type="checkbox" id="usar-bsb" style="width: 20px;">
+          <label for="usar-bsb" style="cursor: pointer; color: #f4f4f9;">Usar BSB / Seguro (Protege Quebra/Volta)</label>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button onclick="tentarRefinar(1)">Refinar 1 Vez</button>
+        <button onclick="tentarRefinar(10)">Refinar 10 Vezes</button>
+        <button onclick="tentarAteAlvo()">Refinar até Alvo (+10)</button>
+        <button onclick="resetarRefino()" class="btn-reset">Resetar Refino</button>
+      </div>
+
+      <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+        <div class="stat-card"><p>Refino Atual</p><span id="refino-atual" style="color: #22c55e; font-size: 1.5rem;">+0</span></div>
+        <div class="stat-card"><p>Tentativas Realizadas</p><span id="total-tentativas">0</span></div>
+        <div class="stat-card"><p>Gasto com Minérios</p><span id="gasto-minerio">0 Zeny</span></div>
+        <div class="stat-card"><p>Gasto Total (Minérios + BSB)</p><span id="gasto-total-refino">0 Zeny</span></div>
+      </div>
+
+      <div class="main-content">
+        <div class="panel"><h2>Log de Refinamentos</h2><div id="log-refino" class="log-box">Nenhum refino realizado ainda.</div></div>
+        <div class="panel"><h2>Estatísticas de Falhas/Sucessos</h2><div id="estatisticas-refino" class="inventory-box"></div></div>
+      </div>
+    </div>
+
   </div>
 
   <script>
@@ -116,62 +189,94 @@
       if (aba === 'ovos') {
         document.querySelector('button[onclick="mudarAba(\'ovos\')"]').classList.add('active');
         document.getElementById('secao-ovos').classList.add('active');
-      } else {
+      } else if (aba === 'festival') {
         document.querySelector('button[onclick="mudarAba(\'festival\')"]').classList.add('active');
         document.getElementById('secao-festival').classList.add('active');
+      } else {
+        document.querySelector('button[onclick="mudarAba(\'refino\')"]').classList.add('active');
+        document.getElementById('secao-refino').classList.add('active');
       }
     }
 
-    const ITENS_OVO = [
-      { nome: "Tempestivo Selecionável", qtd: 1, chance: 0.0250 },
-      { nome: "Penetrante Selecionável", qtd: 1, chance: 0.0250 },
-      { nome: "Envelope de Alto Refino", qtd: 1, chance: 0.0500 },
-      { nome: "Âmago Dimensional", qtd: 1, chance: 0.2250 },
-      { nome: "Âmago", qtd: 1, chance: 0.2250 },
-      { nome: "Katar Celestial [2]", qtd: 1, chance: 0.3500 },
-      { nome: "Manopla Infernal [2]", qtd: 1, chance: 0.3500 },
-      { nome: "Foice Infernal [2]", qtd: 1, chance: 0.3500 },
-      { nome: "Shuriken Celestial [2]", qtd: 1, chance: 0.3500 },
-      { nome: "Fugaz Selecionável", qtd: 1, chance: 0.4000 },
-      { nome: "Infinito Selecionável", qtd: 1, chance: 0.4000 },
-      { nome: "Martelo de Refino Celestial", qtd: 1, chance: 1.0000 },
-      { nome: "Martelo de Refino Infernal", qtd: 1, chance: 1.0000 },
-      { nome: "Martelo de Refino dos Elmos", qtd: 1, chance: 1.0000 },
-      { nome: "Martelo de Refino Vivatus", qtd: 1, chance: 1.0000 },
-      { nome: "Caixa de Ás Selecionável", qtd: 1, chance: 1.0000 },
-      { nome: "Caixa da Fé", qtd: 1, chance: 1.0000 },
-      { nome: "Caixa Consagrada", qtd: 1, chance: 1.5000 },
-      { nome: "Caixa de Âmagos Sombrios", qtd: 1, chance: 1.5000 },
-      { nome: "Envelope de Encantos", qtd: 1, chance: 1.5000 },
-      { nome: "Cubo Sombrio Talentoso", qtd: 1, chance: 2.0000 },
-      { nome: "Caixa de Armaduras Desconhecidas", qtd: 1, chance: 2.0000 },
-      { nome: "Caixa de Capas Desconhecidas", qtd: 1, chance: 2.0000 },
-      { nome: "Selo de Loki", qtd: 1, chance: 2.0000 },
-      { nome: "Martelo de Refino da Ecosfera", qtd: 1, chance: 2.5000 },
-      { nome: "Martelo de Refino COR", qtd: 1, chance: 2.5000 },
-      { nome: "Bênção do Ferreiro", qtd: 3, chance: 3.0000 },
-      { nome: "Cx. Asa de Mosca (1 dia)", qtd: 1, chance: 3.0000 },
-      { nome: "Seguro Estendido", qtd: 2, chance: 3.0000 },
-      { nome: "Cx. Cartão Pata de Gato (1 dia)", qtd: 1, chance: 3.0000 },
-      { nome: "Caixa de Martelos Sombrios", qtd: 1, chance: 3.0000 },
-      { nome: "[Evento] Manual & Chiclete", qtd: 1, chance: 4.7500 },
-      { nome: "[Evento] Poção Menor de Mana", qtd: 2, chance: 4.7500 },
-      { nome: "Suco de Gato", qtd: 2, chance: 4.7500 },
-      { nome: "Estimulante", qtd: 2, chance: 4.7500 },
-      { nome: "[Limitado] Amuleto de Siegfried", qtd: 3, chance: 4.7500 },
-      { nome: "Combinador de Pedras Visuais", qtd: 3, chance: 7.0000 },
-      { nome: "Maleta de Produtos Químicos", qtd: 2, chance: 7.0000 },
-      { nome: "Porta Moedas", qtd: 2, chance: 7.0000 },
-      { nome: "Poção Mental", qtd: 2, chance: 7.0000 },
-      { nome: "Elixir Rubro", qtd: 3, chance: 7.0000 },
-      { nome: "Cupom da Kachua", qtd: 1, chance: 100.0000 }
-    ];
+    // --- BASE DE DADOS DE ARTEFATOS OVAIS ---
+    const BASE_OVOS = {
+      diabolico: [
+        { nome: "Pedra Preciosa Selecionável", qtd: 1, chance: 0.0250 },
+        { nome: "Portador Selecionável", qtd: 1, chance: 0.0250 },
+        { nome: "Envelope de Alto Refino", qtd: 1, chance: 0.0500 },
+        { nome: "Âmago Dimensional", qtd: 1, chance: 0.2250 },
+        { nome: "Âmago", qtd: 1, chance: 0.2250 },
+        { nome: "Tridente Celestial [2]", qtd: 1, chance: 0.3500 },
+        { nome: "Espada Celestial [2]", qtd: 1, chance: 0.3500 },
+        { nome: "Destruidor Infernal [2]", qtd: 1, chance: 0.3500 },
+        { nome: "Granadeira Infernal [2]", qtd: 1, chance: 0.3500 },
+        { nome: "Total Selecionável", qtd: 1, chance: 0.4000 },
+        { nome: "Absorção Selecionável", qtd: 1, chance: 0.4000 },
+        { nome: "Martelo de Refino Celestial", qtd: 1, chance: 1.0000 },
+        { nome: "Martelo de Refino Infernal", qtd: 1, chance: 1.0000 },
+        { nome: "Coroa Invernal Selecionável", qtd: 1, chance: 1.0000 },
+        { nome: "Vestido da Celine [1]", qtd: 1, chance: 1.0000 },
+        { nome: "Caixa de Ás Selecionável", qtd: 1, chance: 1.0000 },
+        { nome: "Martelo de Refino de Issgard", qtd: 1, chance: 1.0000 },
+        { nome: "Caixa Consagrada", qtd: 1, chance: 1.5000 },
+        { nome: "Caixa de Âmagos Sombrios", qtd: 1, chance: 1.5000 },
+        { nome: "Envelope de Encantos", qtd: 1, chance: 1.5000 },
+        { nome: "Cubo Sombrio Talentoso", qtd: 1, chance: 2.0000 },
+        { nome: "Caixa de Armaduras Desconhecidas", qtd: 1, chance: 2.0000 },
+        { nome: "Caixa de Capas Desconhecidas", qtd: 1, chance: 2.0000 },
+        { nome: "Selo de Loki", qtd: 1, chance: 2.0000 },
+        { nome: "Martelo de Refino da Ecosfera", qtd: 1, chance: 2.5000 },
+        { nome: "Martelo de Refino COR", qtd: 1, chance: 2.5000 },
+        { nome: "Bênção do Ferreiro", qtd: 3, chance: 3.0000 },
+        { nome: "Cx. Asa de Mosca (1 dia)", qtd: 1, chance: 3.0000 },
+        { nome: "Seguro Estendido", qtd: 2, chance: 3.0000 },
+        { nome: "Cx. Cartão Pata de Gato (1 dia)", qtd: 1, chance: 3.0000 },
+        { nome: "Caixa de Martelos Sombrios", qtd: 1, chance: 3.0000 },
+        { nome: "[Evento] Manual & Chiclete", qtd: 1, chance: 4.7500 },
+        { nome: "[Evento] Poção Menor de Mana", qtd: 2, chance: 4.7500 },
+        { nome: "Suco de Gato", qtd: 2, chance: 4.7500 },
+        { nome: "Estimulante", qtd: 2, chance: 4.7500 },
+        { nome: "[Limitado] Amuleto de Siegfried", qtd: 3, chance: 4.7500 },
+        { nome: "Combinador de Pedras Visuais", qtd: 3, chance: 7.0000 },
+        { nome: "Maleta de Produtos Químicos", qtd: 2, chance: 7.0000 },
+        { nome: "Porta Moedas", qtd: 2, chance: 7.0000 },
+        { nome: "Poção Mental", qtd: 2, chance: 7.0000 },
+        { nome: "Elixir Rubro", qtd: 3, chance: 7.0000 },
+        { nome: "Cupom da Kachua", qtd: 1, chance: 100.0000 }
+      ],
+      gourmet: [
+        { nome: "Tempestivo Selecionável", qtd: 1, chance: 0.0250 },
+        { nome: "Penetrante Selecionável", qtd: 1, chance: 0.0250 },
+        { nome: "Envelope de Alto Refino", qtd: 1, chance: 0.0500 },
+        { nome: "Âmago Dimensional", qtd: 1, chance: 0.2250 },
+        { nome: "Âmago", qtd: 1, chance: 0.2250 },
+        { nome: "Katar Celestial [2]", qtd: 1, chance: 0.3500 },
+        { nome: "Manopla Infernal [2]", qtd: 1, chance: 0.3500 },
+        { nome: "Foice Infernal [2]", qtd: 1, chance: 0.3500 },
+        { nome: "Shuriken Celestial [2]", qtd: 1, chance: 0.3500 },
+        { nome: "Fugaz Selecionável", qtd: 1, chance: 0.4000 },
+        { nome: "Infinito Selecionável", qtd: 1, chance: 0.4000 },
+        { nome: "Bênção do Ferreiro", qtd: 3, chance: 3.0000 },
+        { nome: "[Evento] Manual & Chiclete", qtd: 1, chance: 4.7500 },
+        { nome: "Cupom da Kachua", qtd: 1, chance: 100.0000 }
+      ]
+    };
 
     let totalAbertos = 0;
     const inventarioOvos = {};
 
+    function obterTabelaOvoAtual() {
+      const chave = document.getElementById("selecao-ovo").value;
+      return BASE_OVOS[chave] || BASE_OVOS.diabolico;
+    }
+
+    function trocarOvo() {
+      resetarOvos();
+    }
+
     function sortearItemOvo() {
-      const itensSorteio = ITENS_OVO.filter(i => i.nome !== "Cupom da Kachua");
+      const tabela = obterTabelaOvoAtual();
+      const itensSorteio = tabela.filter(i => i.nome !== "Cupom da Kachua");
       const somaTotal = itensSorteio.reduce((acc, curr) => acc + curr.chance, 0);
       const rand = Math.random() * somaTotal;
       let soma = 0;
@@ -185,26 +290,27 @@
     function abrirOvo(quantidade) {
       totalAbertos += quantidade;
       const resultadosRodada = [];
+      const tabela = obterTabelaOvoAtual();
+
       for (let i = 0; i < quantidade; i++) {
-        adicionarInventarioOvo("Cupom da Kachua", 1);
-        resultadosRodada.push(ITENS_OVO.find(i => i.nome === "Cupom da Kachua"));
+        inventarioOvos["Cupom da Kachua"] = (inventarioOvos["Cupom da Kachua"] || 0) + 1;
+        const cupomObj = tabela.find(i => i.nome === "Cupom da Kachua") || { nome: "Cupom da Kachua", qtd: 1, chance: 100 };
+        resultadosRodada.push(cupomObj);
+
         const itemSorteado = sortearItemOvo();
-        adicionarInventarioOvo(itemSorteado.nome, itemSorteado.qtd);
+        inventarioOvos[itemSorteado.nome] = (inventarioOvos[itemSorteado.nome] || 0) + itemSorteado.qtd;
         resultadosRodada.push(itemSorteado);
       }
+
       atualizarInterfaceOvos(resultadosRodada);
-    }
-
-    function adicionarInventarioOvo(nome, qtd) {
-      inventarioOvos[nome] = (inventarioOvos[nome] || 0) + qtd;
-    }
-
-    function atualizarCustosOvos() {
-      atualizarInterfaceOvos([]);
     }
 
     function formatarNumero(num) {
       return num.toLocaleString('pt-BR');
+    }
+
+    function atualizarCustosOvos() {
+      atualizarInterfaceOvos([]);
     }
 
     function atualizarInterfaceOvos(ultimosSorteados) {
@@ -246,50 +352,30 @@
       document.getElementById("inventario").innerHTML = "";
     }
 
+    // --- FESTIVAL GASTRONÔMICO ---
     let totalDegustacoes = 0;
     let moedasOuroTotal = 0;
-    const estatisticasFestival = {
-      "Banquete Real (3 Dados Iguais)": 0,
-      "Especial do Chefe (Soma >= 12)": 0,
-      "Comida Saborosa (Outros)": 0
-    };
-
-    function rolarDadosFestival() {
-      const d1 = Math.floor(Math.random() * 6) + 1;
-      const d2 = Math.floor(Math.random() * 6) + 1;
-      const d3 = Math.floor(Math.random() * 6) + 1;
-      const soma = d1 + d2 + d3;
-
-      let tipo = "", ouro = 0, classeCss = "";
-      if (d1 === d2 && d2 === d3) {
-        tipo = "Banquete Real"; ouro = 8888; classeCss = "rare";
-        estatisticasFestival["Banquete Real (3 Dados Iguais)"]++;
-      } else if (soma >= 12) {
-        tipo = "Especial do Chefe"; ouro = 44; classeCss = "";
-        estatisticasFestival["Especial do Chefe (Soma >= 12)"]++;
-      } else {
-        tipo = "Comida Saborosa"; ouro = 11; classeCss = "";
-        estatisticasFestival["Comida Saborosa (Outros)"]++;
-      }
-      return { d1, d2, d3, soma, tipo, ouro, classeCss };
-    }
+    const estatisticasFestival = { "Banquete Real (3 Dados Iguais)": 0, "Especial do Chefe (Soma >= 12)": 0, "Comida Saborosa (Outros)": 0 };
 
     function degustar(quantidade) {
       totalDegustacoes += quantidade;
       const ultimosResultados = [];
       for (let i = 0; i < quantidade; i++) {
-        const res = rolarDadosFestival();
-        moedasOuroTotal += res.ouro;
-        if (quantidade <= 100) ultimosResultados.push(res);
+        const d1 = Math.floor(Math.random() * 6) + 1;
+        const d2 = Math.floor(Math.random() * 6) + 1;
+        const d3 = Math.floor(Math.random() * 6) + 1;
+        const soma = d1 + d2 + d3;
+        let ouro = 0, classeCss = "";
+        if (d1 === d2 && d2 === d3) {
+          ouro = 8888; classeCss = "rare"; estatisticasFestival["Banquete Real (3 Dados Iguais)"]++;
+        } else if (soma >= 12) {
+          ouro = 44; estatisticasFestival["Especial do Chefe (Soma >= 12)"]++;
+        } else {
+          ouro = 11; estatisticasFestival["Comida Saborosa (Outros)"]++;
+        }
+        moedasOuroTotal += ouro;
+        if (quantidade <= 100) ultimosResultados.push({ d1, d2, d3, ouro, classeCss });
       }
-      atualizarInterfaceFestival(ultimosResultados);
-    }
-
-    function atualizarCustosFestival() {
-      atualizarInterfaceFestival([]);
-    }
-
-    function atualizarInterfaceFestival(ultimosResultados) {
       document.getElementById("total-degustacoes").innerText = formatarNumero(totalDegustacoes);
       const custoPrata = parseFloat(document.getElementById("custo-prata").value) || 0;
       document.getElementById("gasto-festival-zeny").innerText = formatarNumero(totalDegustacoes * custoPrata) + " Zeny";
@@ -301,7 +387,7 @@
         ultimosResultados.forEach(res => {
           const div = document.createElement("div");
           div.className = `item-row ${res.classeCss}`;
-          div.innerHTML = `<span>[${res.d1}, ${res.d2}, ${res.d3}] ${res.tipo}</span> <strong>+${formatarNumero(res.ouro)} Ouro</strong>`;
+          div.innerHTML = `<span>[${res.d1}, ${res.d2}, ${res.d3}]</span> <strong>+${formatarNumero(res.ouro)} Ouro</strong>`;
           logBox.appendChild(div);
         });
       }
@@ -317,6 +403,11 @@
       });
     }
 
+    function atualizarCustosFestival() {
+      const custoPrata = parseFloat(document.getElementById("custo-prata").value) || 0;
+      document.getElementById("gasto-festival-zeny").innerText = formatarNumero(totalDegustacoes * custoPrata) + " Zeny";
+    }
+
     function resetarFestival() {
       totalDegustacoes = 0;
       moedasOuroTotal = 0;
@@ -327,6 +418,156 @@
       document.getElementById("historico-festival").innerHTML = "Nenhuma degustação realizada ainda.";
       document.getElementById("estatisticas-festival").innerHTML = "";
     }
+
+    // --- SIMULADOR DE REFINO ---
+    const MINERIOS = {
+      arma1: [{ nome: "Eterium", tipo: "comum" }, { nome: "Eterium Enriquecido", tipo: "enriquecido" }],
+      arma2: [{ nome: "Oridecon", tipo: "comum" }, { nome: "Oridecon Enriquecido", tipo: "enriquecido" }],
+      arma3: [{ nome: "Oridecon", tipo: "comum" }, { nome: "Oridecon Enriquecido", tipo: "enriquecido" }],
+      arma4: [{ nome: "Oridecon", tipo: "comum" }, { nome: "Oridecon Enriquecido", tipo: "enriquecido" }],
+      arma5: [{ nome: "Oridecon", tipo: "comum" }, { nome: "Oridecon Enriquecido", tipo: "enriquecido" }],
+      equip1: [{ nome: "Elunium", tipo: "comum" }, { nome: "Elunium Enriquecido", tipo: "enriquecido" }],
+      sombrio: [{ nome: "Minério Sombrio", tipo: "comum" }, { nome: "Minério Sombrio Enriquecido", tipo: "enriquecido" }]
+    };
+
+    const CHANCES_BASE = {
+      arma1:  [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 60, 40, 20, 20, 10, 10, 5, 5, 2, 1],
+      arma2:  [100, 100, 100, 100, 100, 100, 100, 100, 60,  40,  40, 30, 20, 10, 5,  5,  2, 2, 1, 1],
+      arma3:  [100, 100, 100, 100, 100, 100, 100, 60,  50,  20,  20, 20, 15, 10, 5,  4,  3, 2, 1, 1],
+      arma4:  [100, 100, 100, 100, 100, 100, 50,  50,  20,  20,  20, 15, 10, 5,  4,  3,  2, 2, 1, 1],
+      arma5:  [100, 100, 100, 100, 100, 80,  50,  30,  20,  15,  10, 10, 5,  4,  3,  2,  2, 1, 1, 1],
+      equip1: [100, 100, 100, 100, 100, 100, 100, 60,  40,  20,  20, 15, 10, 5,  4,  3,  2, 2, 1, 1],
+      sombrio:[100, 100, 100, 100, 100, 100, 50,  50,  20,  20,  15, 10, 5,  4,  3,  2,  1, 1, 1, 1]
+    };
+
+    let refinoAtual = 0;
+    let totalTentativas = 0;
+    let gastoMinerios = 0;
+    let gastoBsb = 0;
+    let qtdSucessos = 0;
+    let qtdFalhas = 0;
+
+    function atualizarOpcoesMinerio() {
+      const tipo = document.getElementById("tipo-equip").value;
+      const selectMinerio = document.getElementById("tipo-minerio");
+      selectMinerio.innerHTML = "";
+      MINERIOS[tipo].forEach(m => {
+        const opt = document.createElement("option");
+        opt.value = m.tipo;
+        opt.innerText = m.nome;
+        selectMinerio.appendChild(opt);
+      });
+    }
+
+    function definirRefinoManual() {
+      const val = parseInt(document.getElementById("refino-inicial").value) || 0;
+      refinoAtual = Math.min(Math.max(val, 0), 20);
+      document.getElementById("refino-atual").innerText = "+" + refinoAtual;
+    }
+
+    function tentarRefinar(qtd) {
+      const tipoEquip = document.getElementById("tipo-equip").value;
+      const eventoAtivo = document.getElementById("evento-ativo").checked;
+      const usarBsb = document.getElementById("usar-bsb").checked;
+      const precoMinerio = parseFloat(document.getElementById("preco-minerio").value) || 0;
+      const precoBsb = parseFloat(document.getElementById("preco-bsb").value) || 0;
+
+      const logBox = document.getElementById("log-refino");
+      if (totalTentativas === 0) logBox.innerHTML = "";
+
+      for (let i = 0; i < qtd; i++) {
+        if (refinoAtual >= 20) break;
+
+        totalTentativas++;
+        gastoMinerios += precoMinerio;
+        if (usarBsb) gastoBsb += precoBsb;
+
+        let chance = CHANCES_BASE[tipoEquip][refinoAtual];
+        if (eventoAtivo) chance += 10;
+        chance = Math.min(chance, 100);
+
+        const roll = Math.random() * 100;
+        let resultadoTexto = "";
+        let classeCss = "";
+
+        if (roll <= chance) {
+          refinoAtual++;
+          qtdSucessos++;
+          resultadoTexto = `Sucesso para +${refinoAtual}`;
+          classeCss = "success";
+        } else {
+          qtdFalhas++;
+          if (usarBsb) {
+            resultadoTexto = `Falhou em +${refinoAtual + 1} (Protegido por BSB/Seguro)`;
+            classeCss = "fail";
+          } else {
+            if (refinoAtual >= 7) {
+              refinoAtual = 0;
+              resultadoTexto = `FALHOU E QUEBROU! Retornou para +0`;
+              classeCss = "fail rare";
+            } else if (refinoAtual >= 4) {
+              refinoAtual--;
+              resultadoTexto = `Falhou, caiu para +${refinoAtual}`;
+              classeCss = "fail";
+            } else {
+              resultadoTexto = `Falhou em +${refinoAtual + 1} (Sem penalidade abaixo de +4)`;
+              classeCss = "";
+            }
+          }
+        }
+
+        if (qtd <= 50) {
+          const div = document.createElement("div");
+          div.className = `item-row ${classeCss}`;
+          div.innerHTML = `<span>Tentativa #${totalTentativas}: ${resultadoTexto}</span>`;
+          logBox.prepend(div);
+        }
+      }
+
+      atualizarInterfaceRefino();
+    }
+
+    function tentarAteAlvo() {
+      let limit = 0;
+      while (refinoAtual < 10 && limit < 5000) {
+        tentarRefinar(1);
+        limit++;
+      }
+    }
+
+    function atualizarInterfaceRefino() {
+      document.getElementById("refino-atual").innerText = "+" + refinoAtual;
+      document.getElementById("total-tentativas").innerText = formatarNumero(totalTentativas);
+      document.getElementById("gasto-minerio").innerText = formatarNumero(gastoMinerios) + " Zeny";
+      document.getElementById("gasto-total-refino").innerText = formatarNumero(gastoMinerios + gastoBsb) + " Zeny";
+
+      const estatBox = document.getElementById("estatisticas-refino");
+      estatBox.innerHTML = `
+        <div class="item-row"><span>Sucessos</span> <strong>${formatarNumero(qtdSucessos)}</strong></div>
+        <div class="item-row"><span>Falhas</span> <strong>${formatarNumero(qtdFalhas)}</strong></div>
+        <div class="item-row"><span>Taxa de Sucesso</span> <strong>${totalTentativas > 0 ? ((qtdSucessos/totalTentativas)*100).toFixed(2) : "0.00"}%</strong></div>
+      `;
+    }
+
+    function resetarRefino() {
+      refinoAtual = 0;
+      totalTentativas = 0;
+      gastoMinerios = 0;
+      gastoBsb = 0;
+      qtdSucessos = 0;
+      qtdFalhas = 0;
+      document.getElementById("refino-inicial").value = "0";
+      document.getElementById("refino-atual").innerText = "+0";
+      document.getElementById("total-tentativas").innerText = "0";
+      document.getElementById("gasto-minerio").innerText = "0 Zeny";
+      document.getElementById("gasto-total-refino").innerText = "0 Zeny";
+      document.getElementById("log-refino").innerHTML = "Nenhum refino realizado ainda.";
+      document.getElementById("estatisticas-refino").innerHTML = "";
+    }
+
+    window.onload = function() {
+      atualizarOpcoesMinerio();
+    };
   </script>
 </body>
 </html>
